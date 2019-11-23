@@ -20,11 +20,16 @@ def normalize_data(data):
     return data,x_mean,x_std
 
 def preprocess(path,deg):
+    np.random.seed(42)
     data = pd.read_csv(path)
+    sdf = data.values
+    np.random.shuffle(sdf)
+    data = pd.DataFrame(sdf,columns=['0','1','2','3'])
     Y = data['3'].values
     ones = np.ones(len(Y),dtype=float)
     data['0'] = ones
     data = data.drop(['3'],axis=1)
+    data,x_mean,x_std = normalize_data(data)
     cnt = 3
     x1 = data['1'].values
     x2 = data['2'].values
@@ -36,15 +41,20 @@ def preprocess(path,deg):
                 t3 = t1*t2
                 data[str(cnt)] = t3
                 cnt+=1
-    data,x_mean,x_std = normalize_data(data)
     y_mean = np.mean(Y)
     y_std = np.std(Y)
     Y = Y - y_mean
     Y = Y/y_std
     X = data.values
-    return X,Y,x_mean,y_mean,x_std,y_std
+    X_test = X[:][300000:]
+    Y_test = Y[300000:]
+    X = X[:][:300000]
+    Y = Y[:300000]
+    return X,Y,x_mean,y_mean,x_std,y_std,X_test,Y_test
 
 
-X,Y,x_mean,y_mean,x_std,y_std = preprocess("3D_spatial_network.csv",3)
-print(len(X),len(Y))
-print(X[0],Y[0])
+# X,Y,x_mean,y_mean,x_std,y_std = preprocess("3D_spatial_network.csv",2)
+# print(len(X),len(Y))
+# print(x_mean)
+# print(x_std)
+# print(X[:5],Y[:5])
